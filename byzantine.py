@@ -2,6 +2,7 @@ from sys import argv
 import socket
 import threading
 import json
+from anytree import AnyNode
 
 n, m, is_commander_traitor = [int(x) for x in argv[1:]]
 if n < 3*m + 1:
@@ -17,15 +18,16 @@ class Process:
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		self.sock.bind((ip, port))
 		self.value = ''
+		self.root = None
 		self.listener = threading.Thread(target=self.receive)
 		self.listener.start()
 
 	def decide(self):
 		print("Process", self.id, "has decided", self.value)
 
-	def construct_message(self, process_id, value):
+	def construct_message(self, path, value):
   		message = {}
-  		message["id"] = process_id
+  		message["path"] = path
   		message["value"] = value
   		return json.dumps(message)
 
@@ -47,14 +49,25 @@ class Process:
 			self.value = message["value"]
 			self.decide()
 		else:
+			path = message["path"]
 			#Handle data
-			pass
+			#Commander message, empty tree
+			if len(message["path"]) == 1:
+				self.root = AnyNode(id=path[0], value=message["value"], decide_value=None)
+			else:
+				r = Resolver('id')
+				last_node = r.get('/'.join(path[:-1]))
+				AnyNode(id=path[-1], value=message["value"], decide_value=None, parent=last_node)
+			if self.id not in path:
+				path.append(self.id)
+
+			
 
 	def oral_messages(self, m):
 		#Commander
 		if self.id == 0:
 			self.value = 'attack'
-			message = self.construct_message(self.id, self.value)
+			message = self.construct_message([self.id], self.value)
 			self.multicast(self.process_list[1:], message)
 
 processes_info = [{"ip":"localhost", "port":9000 + i, "id":i} for i in range(n)]
