@@ -40,16 +40,15 @@ class Process:
 		print("Process", self.id, "has decided", self.value)
 
 	def construct_message(self, path, value):
-  		message = {}
-  		message["path"] = path
-  		if self.loyal:
-  			message["value"] = value
-  		else:
-  			message["value"] = random.choice(["attack", "retreat"])
-  		return json.dumps(message)
+			message = {}
+			message["path"] = path
+			message["value"] = value
+			return message
 
 	def send(self, ip, port, message):
-		self.sock.sendto(message.encode('utf-8'), (ip, port))
+		if self.loyal == False:
+			message["value"] = random.choice(["attack", "retreat"])
+		self.sock.sendto(json.dumps(message).encode('utf-8'), (ip, port))
 
 	def multicast(self, group, message):
 		for member in group:
@@ -87,7 +86,7 @@ class Process:
 						node.decide_value = majority([n.decide_value for n in node.children])
 				self.value = self.root.decide_value
 				self.decide()
-				#print(self.id, RenderTree(self.root))
+				print(self.id, RenderTree(self.root))
 
 	def oral_messages(self, m):
 		#Commander
@@ -101,8 +100,10 @@ processes = [Process(process["ip"], process["port"], process["id"], processes_in
 if is_commander_traitor:
 	traitors = [0] + random.sample(range(1, n), m-1)
 else:
-	traitors = random.sample(range(n), m)
+	traitors = random.sample(range(1,n), m)
 for traitor in traitors:
 	processes[traitor].setLoyalty(False)
+
+print(traitors)
 
 processes[0].oral_messages(m)
