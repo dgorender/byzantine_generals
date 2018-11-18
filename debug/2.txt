@@ -1,0 +1,4 @@
+2 AnyNode(decide_value='attack', id='0', name='0', value='retreat')
+├── AnyNode(decide_value='attack', id='1', name='1', value='attack')
+├── AnyNode(decide_value='retreat', id='2', name='2', value='retreat')
+└── AnyNode(decide_value='attack', id='3', name='3', value='attack')
