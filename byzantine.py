@@ -1,11 +1,11 @@
-from sys import argv
+from sys import argv, stdout
+import os
 import socket
 import threading
 import json
 import random
 from collections import Counter
 from anytree import AnyNode, RenderTree, Resolver, LevelOrderIter
-from anytree.exporter import DotExporter
 
 #Read input
 n, m, is_commander_traitor = [int(x) for x in argv[1:]]
@@ -97,10 +97,10 @@ class Process:
 					if not node.is_leaf:
 						node.decide_value = majority([n.decide_value for n in node.children])
 				self.value = self.root.decide_value
-				self.decide()
-				print(self.id, RenderTree(self.root))
-				#DotExporter(self.root, nodeattrfunc=lambda node: 'label="id: {} | value: {} | decide_value: {}"'.format(node.id, node.value, node.decide_value)).to_picture("./results/" + self.id + ".png")
-				
+				with open("./results/" + self.id + ".txt",'w') as f:
+					sys.stdout = f
+					self.decide()
+					print(self.id, RenderTree(self.root))				
 
 	def oral_messages(self, m):
 		#Commander
