@@ -1,4 +1,4 @@
-from sys import argv, stdout
+import sys 
 import os
 import socket
 import threading
@@ -8,7 +8,7 @@ from collections import Counter
 from anytree import AnyNode, RenderTree, Resolver, LevelOrderIter
 
 #Read input
-n, m, is_commander_traitor = [int(x) for x in argv[1:]]
+n, m, is_commander_traitor = [int(x) for x in sys.argv[1:]]
 if (n < 3*m + 1) or (is_commander_traitor == 1 and m == 0):
 	print("It is impossible to solve the byzantine generals problem for that configuration")
 
@@ -42,7 +42,7 @@ class Process:
 	def setLoyalty(self, loyalty):
 		self.loyal = loyalty
 
-	def decide(self):
+	def print_decision(self):
 		print("Process", self.id, "has decided", self.value)
 
 	def construct_message(self, path, value):
@@ -97,10 +97,10 @@ class Process:
 					if not node.is_leaf:
 						node.decide_value = majority([n.decide_value for n in node.children])
 				self.value = self.root.decide_value
-				with open("./results/" + self.id + ".txt",'w') as f:
-					sys.stdout = f
-					self.decide()
-					print(self.id, RenderTree(self.root))				
+				print("Process", self.id, "has decided", self.value)
+				#print("Process", self.id, "has decided", self.value)
+				with open('./results/' + self.id + ".txt", "w") as f:
+					print(self.id, RenderTree(self.root), file=f)				
 
 	def oral_messages(self, m):
 		#Commander
