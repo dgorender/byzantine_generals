@@ -13,3 +13,6 @@ $python byzantine.py 7 2 1
 
 The implementation uses anytree python library to deal with tree structures.
 To install: $pip install anytree
+
+The result decision tree for each process is written to disk with the id name in
+the results folder.
